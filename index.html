@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body oncontextmenu="return false;" onload="init()">
+    <div class="game-lvl">
+        <button class="easy" onclick="setLevel(4,2)">Eazy 16</button>
+        <button class="inter" onclick="setLevel(8,12)">Intermediate 64</button>
+        <button class="hard" onclick="setLevel(12,30)">Hard 144</button>
+
+    </div>
+
+    <div class="game-data1">
+        <h3 class="timer"> Time:<span class="time"> </span></h3>
+    </div>
+
+    <div class="game-data2">
+
+        <span class="smiley" onclick="init()">😀</span>
+
+    </div>
+    <div class="game-data3">
+        <h3 class="flags"> Flags:<span class="flags-count"> </span></h3>
+    </div>
+
+    <table class="board">
+        <tbody class="mine-cells">
+        </tbody>
+    </table>
+
+    <div class="lives">
+        <h3>LIVES:<span class="lives-left"></span></h3>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/1.js"></script>
+</body>
+
+</html>
