@@ -232,7 +232,7 @@ function getSafeCell(elBtn) {
     elCell.style.backgroundColor = 'blue'
 
     setTimeout(() => {
-        if (elCell.style.backgroundColor === 'blue') elCell.style.backgroundColor === 'yellow'
+        if (elCell.style.backgroundColor === 'blue') elCell.style.backgroundColor = 'yellow'
     }, 2000)
 
 
@@ -278,13 +278,15 @@ function expandShown(pos) {
             if (j < 0 || j >= gBoard[i].length) continue;
             if (i === pos.i && j === pos.j) continue;
             if (gBoard[i][j].isMarked) continue
-            if (!gBoard[i][j].isMine && !gBoard[i][j].minesAroundCount && !gBoard[i][j].isShown) {
+            if (!gBoard[i][j].isMine && !gBoard[i][j].isShown) {
                 var elCell = document.querySelector(`.cell${i}-${j}`);
                 elCell.style.backgroundColor = 'lightGrey'
+                if (gBoard[i][j].minesAroundCount) elCell.innerText = gBoard[i][j].minesAroundCount
                 gBoard[i][j].isShown = true
                 gGame.shownCount++
             }
         }
+
     }
 }
 
@@ -378,4 +380,10 @@ function flagsCount() {
 function livesCount() {
     var elLivesLeft = document.querySelector('.lives-left')
     elLivesLeft.innerText = gLifeCount
+}
+
+
+function undo() {
+
+
 }
