@@ -1,4 +1,7 @@
 'use strict'
+
+// not a good file name
+
 var gBoard
 
 const MINE = '💣'
@@ -17,13 +20,16 @@ var gGame = {
     secsPassed: 0
 }
 
+var gSafeClickCount
+var gHintCount
+var gHint = false
 var gTimeInterval
 var gStartTime
-var gLifeCount = 3
+var gLifeCount
 var gCells
 var gFlags = gLevel.mines
 var gClickCount
-var gHeight = 30
+var gHeight = 30 // always the same
 var gWidth = 30
 var gFontSize = 1.2
 
@@ -39,10 +45,17 @@ function init() {
     gGame.shownCount = 0
     gGame.markedCount = 0
     gLifeCount = 3
+    gHintCount = 3
+    gSafeClickCount = 3
     var elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '😀'
     var elTime = document.querySelector('.time')
     elTime.innerText = 0
+    var elHintBtn = document.querySelector('.hints-left')
+    elHintBtn.innerText = gHintCount
+    var elSafeBtn = document.querySelector('.safe-clicks-left')
+    elSafeBtn.innerText = gSafeClickCount
+
     gFlags = gLevel.mines
     gClickCount = 0
     flagsCount()
@@ -113,7 +126,8 @@ function renderBoard() {
                 var className = `cell cell${i}-${j}`
             }
 
-            strHTML += `\t<td style="width:${gWidth}px;height:${gHeight}px;font-size:${gFontSize}em;" class="${className}" onclick="cellClicked(this, ${i}, ${j})" onmousedown="cellMarked(this,${i},${j},event)"> 
+            strHTML += `\t<td style="width:${gWidth}px;height:${gHeight}px;font-size:${gFontSize}em;" 
+            class="${className}" onclick="onClickSwitch(this, ${i}, ${j})" onmousedown="cellMarked(this,${i},${j},event)" > 
                              </td>\n`
         }
         strHTML += `</tr>\n`
@@ -138,10 +152,95 @@ function renderMIne() {
     }
 }
 
+function onClickSwitch(elCell, i, j) {
+    if (gHint) {
+        showHint(elCell, i, j)
+    } else {
+        cellClicked(elCell, i, j)
+    }
+
+}
+
+function showHintSwitch() {
+    if (gHintCount > 0) gHint = true
+}
+
+function showHint(elCell, x, y) {
+    if (!gHint) return
+    var hintNegs = []
+    if (gBoard[x][y].isMarked || !gGame.isOn || gBoard[x][y].isShown) return
+
+    gHintCount--
+    var elBtn = document.querySelector('.hints-left')
+    elBtn.innerText = gHintCount
+
+    for (var i = x - 1; i <= x + 1; i++) {
+        if (i < 0 || i >= gBoard.length) continue;
+        for (var j = y - 1; j <= y + 1; j++) {
+            if (j < 0 || j >= gBoard[i].length) continue;
+            if (gBoard[i][j].isMarked || gBoard[i][j].isShown) continue
+            hintNegs.push({ i: i, j: j })
+            var elCell = document.querySelector(`.cell${i}-${j}`);
+            elCell.style.backgroundColor = 'lightGrey'
+            if (gBoard[i][j].minesAroundCount) elCell.innerText = gBoard[i][j].minesAroundCount
+            if (gBoard[i][j].isMine) elCell.innerText = MINE
+
+
+            gHint = false
+            setTimeout(() => {
+
+                closeHint(hintNegs)
+            }, 1000)
+
+
+        }
+    }
+
+}
+
+
+function closeHint(hintNegs) {
+    for (var i = 0; i < hintNegs.length; i++) {
+        var pos = hintNegs[i]
+        if (gBoard[pos.i][pos.j].isMarked || gBoard[pos.i][pos.j].isShown) continue
+        var elCell = document.querySelector(`.cell${pos.i}-${pos.j}`);
+        elCell.innerText = ' '
+        elCell.style.backgroundColor = 'yellow'
+
+    }
+}
+
+
+function getSafeCell(elBtn) {
+    if (gSafeClickCount < 1) return
+    var safeCells = []
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            if (gBoard[i][j].isMarked || gBoard[i][j].isShown || gBoard[i][j].isMine) continue
+            var cell = { i: i, j: j }
+            safeCells.push(cell)
+        }
+    }
+    console.log(safeCell);
+
+    gSafeClickCount--
+    var elSafeBtn = elBtn.querySelector('.safe-clicks-left')
+    elSafeBtn.innerText = gSafeClickCount
+
+    var safeCell = safeCells[getRandomInt(0, safeCells.length)]
+    var elCell = document.querySelector(`.cell${safeCell.i}-${safeCell.j}`);
+    elCell.style.backgroundColor = 'blue'
+
+    setTimeout(() => {
+        if (elCell.style.backgroundColor === 'blue') elCell.style.backgroundColor === 'yellow'
+    }, 2000)
+
+
+}
 
 function cellClicked(elCell, i, j) {
 
-    if (gBoard[i][j].isMarked || !gGame.isOn || gBoard[i][j].isShown) return
+    if (gBoard[i][j].isMarked || !gGame.isOn || gBoard[i][j].isShown || gHint) return
     if (gClickCount === 0) startTimeInterval()
     gClickCount++
 
